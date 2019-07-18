@@ -3,9 +3,9 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "policy" {
- 
+
   statement {
-    sid = "LambdaLogCreation"
+    sid    = "LambdaLogCreation"
     effect = "Allow"
     actions = [
       "logs:CreateLogGroup",
@@ -13,13 +13,13 @@ data "aws_iam_policy_document" "policy" {
       "logs:PutLogEvents"
     ]
     resources = [
-          "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}",
-          "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}:*",
-        ]
+      "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}",
+      "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}:*",
+    ]
   }
 
   statement {
-    sid = "LambdaVPCconfig"
+    sid    = "LambdaVPCconfig"
     effect = "Allow"
     actions = [
       "ec2:CreateNetworkInterface",
@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "policy" {
   }
 
   statement {
-    sid = "ESPermission"
+    sid    = "ESPermission"
     effect = "Allow"
     actions = [
       "es:*"
@@ -70,12 +70,12 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "policy_attachment" {
-  role       = "${aws_iam_role.role.name}"
+  role = "${aws_iam_role.role.name}"
   policy_arn = "${aws_iam_policy.policy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "policy_attachment_vpc" {
-  count      = "${length(var.subnet_ids) > 0 ? 1 : 0}"
-  role       = "${aws_iam_role.role.name}"
+  count = "${length(var.subnet_ids) > 0 ? 1 : 0}"
+  role = "${aws_iam_role.role.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

@@ -17,25 +17,25 @@ resource "aws_security_group" "lambda" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   egress {
     from_port   = 53
     to_port     = 53
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   egress {
     from_port   = 53
     to_port     = 53
     protocol    = "udp"
     cidr_blocks = ["0.0.0.0/0"]
-  } 
+  }
 
 
   tags = "${merge(
-            var.tags,
-            map("Scope", "${var.prefix}lambda_function_to_elasticsearch${var.suffix}"),
-            )}"
+    var.tags,
+    map("Scope", "${var.prefix}lambda_function_to_elasticsearch${var.suffix}"),
+  )}"
 
 }
