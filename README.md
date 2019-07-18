@@ -29,7 +29,7 @@ Particularly it creates:
 | index |  `logstash,cwl` | Index/indices to process comma separated, with `all` every index will be processed except `.kibana` | `all` | False |
 | index_format  | `%Y.%m.%d` | Combined with `index` varible is used to evaluate the index age | `%Y.%m.%d` |  False |
 | delete_after | `7` | Numbers of days to preserve | `15` |  False |
-| python_version | `2.7` | Python version to be used | `2.7` |  False |
+| python_version | `3.6` | Python version to be used | `3.6` |  False |
 | schedule | `cron(0 3 * * ? *)` | Cron Schedule expression for running the cleanup function | `cron(0 3 * * ? *)` |  False |
 | sns_alert | `arn:aws:sns:eu-west-1:123456789012:sns-alert` | SNS ARN to publish any alert | | False |
 | prefix | `public-` | A prefix for the resource names, this helps create multiple instances of this stack for different environments | | False |
@@ -49,7 +49,7 @@ provider "aws" {
 
 module "public_es_cleanup" {
   source       = "giuliocalzolari/es-cleanup/aws"
-  version      = "1.10.0"
+  version      = "1.10.2"
   prefix       = "public_es_"
   es_endpoint  = "test-es-XXXXXXX.eu-central-1.es.amazonaws.com"
   delete_after = 365
@@ -69,17 +69,12 @@ module "vpc_es_cleanup" {
 ```
 
 
-### Issue
-In order order to use new module version you must have `terraform-provider-aws` greated than `1.35.0`
-## How to Contribute
+## Authors
 
-We encourage contribution to our projects, please see our [CONTRIBUTING](CONTRIBUTING.md) guide for details.
+Module is maintained by [Giulio Calzolari](https://github.com/giuliocalzolari) with help from [these awesome contributors](AUTHORS.md).
 
 
 ## License
 
-**aws-lambda-es-cleanup** is licensed under the [Apache Software License 2.0](LICENSE.md).
-
-## Thanks
-
-Keep It Cloudy ([@CloudreachKIC](https://twitter.com/cloudreachkic))
+**terraform-aws-es-cleanup** is licensed under the [Apache Software License 2.0](LICENSE.md).
+Originally developed by [Cloudreach](https://github.com/cloudreach/aws-lambda-es-cleanup) adapted in this repo due to [Terraform Registry Requirements](https://www.terraform.io/docs/registry/modules/publish.html)
