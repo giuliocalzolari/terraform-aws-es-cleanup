@@ -28,6 +28,7 @@ Module compatible with Terraform `0.12`
 | python\_version | Python version to be used | string | `"3.6"` | no |
 | schedule | Cron Schedule expression for running the cleanup function | string | `"cron(0 3 * * ? *)"` | no |
 | security\_group\_ids | Addiational Security Ids To add. | list() | `[]` | no |
+| skip\_index | Index/indices to skip | string | `".kibana"` | no |
 | sns\_alert | SNS ARN to pusblish any alert | string | `""` | no |
 | subnet\_ids | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | list() | `[]` | no |
 | suffix | A suffix for the resource names, this helps create multiple instances of this stack for different environments | string | `""` | no |

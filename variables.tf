@@ -33,6 +33,12 @@ variable "index" {
   type        = string
 }
 
+variable "skip_index" {
+  description = "Index/indices to skip"
+  default     = ".kibana"
+  type        = string
+}
+
 variable "delete_after" {
   description = "Numbers of days to preserve"
   default     = 15
