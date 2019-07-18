@@ -1,6 +1,6 @@
 data "archive_file" "es_cleanup_lambda" {
   type        = "zip"
-  source_file = "${path.module}/../es-cleanup.py"
+  source_file = "${path.module}/es-cleanup.py"
   output_path = "${path.module}/es-cleanup.zip"
 }
 
@@ -8,15 +8,9 @@ locals {
   sg_ids = ["${element(concat(aws_security_group.lambda.*.id, list("")), 0)}"]
 }
 
-data "null_data_source" "lambda_file" {
-  inputs {
-    filename = "${substr("${path.module}/es-cleanup.zip", length(path.cwd) + 1, -1)}"
-
-  }
-}
 
 resource "aws_lambda_function" "es_cleanup" {
-  filename         = "${data.null_data_source.lambda_file.outputs.filename}"
+  filename         = "${substr("${path.module}/es-cleanup.zip", length(path.cwd) + 1, -1)}"
   function_name    = "${var.prefix}es-cleanup${var.suffix}"
   description      = "${var.prefix}es-cleanup${var.suffix}"
   timeout          = 300

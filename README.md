@@ -10,117 +10,18 @@ This AWS Lambda function allows you to delete the old Elasticsearch indexes usin
 </p>
 
 
+# Terraform module
 
-## Getting Started
-### How To install
+Particularly it creates:
 
-Clone your repository
-
-```bash
-$ git clone git@github.com:cloudreach/aws-lambda-es-cleanup.git
-$ cd aws-lambda-es-cleanup/
-```
-
-Configure in a proper way the IAM policy inside `json_file/es_policy.json` and `json_file/trust_policy.json`
-
-Create the IAM Role
-
-```bash
-$ aws iam create-role --role-name es-cleanup-lambda \
-	--assume-role-policy-document file://json_file/trust_policy.json
-
-```
-
-```bash
-$ aws iam put-role-policy --role-name es-cleanup-lambda \
-    --policy-name es_cleanup \
-    --policy-document file://json_file/es_policy.json
-```
+1. Lambda function that does the deletion
+2. IAM role and policy that allows access to ES
+3. Cloudwatch event rule that triggers the lambda function on a schedule
+4. (Only when your Lambda is deployed inside a VPC) Security Group for Lambda function
 
 
-if your lambda is running inside the VPC also attach the these policies
+## Module Input Variables
 
-
-```
-arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-````
-
-
-Create your Lambda package
-
-```bash
-$ zip es-cleanup-lambda.zip es-cleanup.py
-```
-
-
-
-### Lambda deployment
-Using awscli you can create your AWS function and set the proper IAM role with the right Account ID
-
-```bash
-$ export AWS_DEFAULT_REGION=eu-west-1
-$ ESENDPOINT="search-es-demo-zveqnhnhjqm5flntemgmx5iuya.eu-west-1.es.amazonaws.com" #ES endpoint
-
-$ aws lambda create-function \
-	--function-name es-cleanup-lambda \
-	--environment Variables={es_endpoint=$ESENDPOINT} \
-	--zip-file fileb://es-cleanup-lambda.zip \
-	--description "Elastichsearch Index Cleanup" \
-	--role arn:aws:iam::123456789012:role/es-cleanup-lambda \
-	--handler es-cleanup.lambda_handler \
-	--runtime python3.6 \
-	--timeout 180
-```
-
-If you want to send variables and not to use environment
-```bash
-$ export AWS_DEFAULT_REGION=eu-west-1
-
-$ aws lambda create-function \
-	--function-name es-cleanup-lambda \
-	--zip-file fileb://es-cleanup-lambda.zip \
-	--description "Elastichsearch Index Cleanup" \
-	--role arn:aws:iam::123456789012:role/es-cleanup-lambda \
-	--handler es-cleanup.lambda_handler \
-	--runtime python3.6 \
-	--timeout 180
-```
-
-### Lambda invoke with parameters
-is it possible to override the default behaviour passing specific payload
-
-```bash
-$ aws lambda invoke
- --function-name es-cleanup-lambda \
- outfile --payload \
- '{"es_endpoint":"search-es-demo-zveqnhnhjqm5flntemgmx5iuya.eu-west-1.es.amazonaws.com"}'
-```
-
-Create your AWS Cloudwatch rule:
-
-```bash
-$ aws events put-rule \
-	--name my-scheduled-rule \
-	--schedule-expression 'cron(0 1 * * ? *)'
-
-
-$ aws lambda add-permission \
-	--function-name es-cleanup-lambda \
-	--statement-id my-scheduled-event \
-	--action 'lambda:InvokeFunction' \
-	--principal events.amazonaws.com \
-	--source-arn arn:aws:events:eu-west-1:123456789012:rule/my-scheduled-rule    
-
-
-$ aws events put-targets \
-	--rule my-scheduled-rule \
-	--targets file://json_file/cloudwatch-target.json
-```
-
-### Lambda configuration and OS parameters
-
-Using AWS environment variable you can easily modify the behaviour of the Lambda function
 
 | Variable Name | Example Value | Description | Default Value | Required |
 | --- | --- | --- | --- |  --- |
@@ -128,43 +29,48 @@ Using AWS environment variable you can easily modify the behaviour of the Lambda
 | index |  `logstash,cwl` | Index/indices to process comma separated, with `all` every index will be processed except `.kibana` | `all` | False |
 | index_format  | `%Y.%m.%d` | Combined with `index` varible is used to evaluate the index age | `%Y.%m.%d` |  False |
 | delete_after | `7` | Numbers of days to preserve | `15` |  False |
+| python_version | `2.7` | Python version to be used | `2.7` |  False |
+| schedule | `cron(0 3 * * ? *)` | Cron Schedule expression for running the cleanup function | `cron(0 3 * * ? *)` |  False |
+| sns_alert | `arn:aws:sns:eu-west-1:123456789012:sns-alert` | SNS ARN to publish any alert | | False |
+| prefix | `public-` | A prefix for the resource names, this helps create multiple instances of this stack for different environments | | False |
+| suffix | `-public` | A prefix for the resource names, this helps create multiple instances of this stack for different environments | | False |
+| subnet_ids | `["subnet-1111111", "subnet-222222"]` | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | | False |
+| security_group_ids | `["sg-1111111", "sg-222222"]` | Addiational Security Ids to add. | | False |
 
-## Serverless Framework
 
-Editing the file `serverless.yml`, you can deploy your function in AWS using [Serverless Framework](https://serverless.com/framework/docs/providers/aws/cli-reference/)
+## Example
 
-```bash
-$ git clone git@github.com:cloudreach/aws-lambda-es-cleanup.git
-$ cd aws-lambda-es-cleanup/
-$ serverless deploy
-Serverless: Creating Stack...
-Serverless: Checking Stack create progress...
-.....
-Serverless: Stack create finished...
-Serverless: Packaging service...
-Serverless: Uploading CloudFormation file to S3...
-Serverless: Uploading function .zip files to S3...
-Serverless: Uploading service .zip file to S3 (7.13 KB)...
-Serverless: Updating Stack...
-Serverless: Checking Stack update progress...
-......................
-Serverless: Stack update finished...
-Service Information
-service: es-cleanup-lambda
-stage: prod
-region: eu-west-1
-api keys:
-  None
-endpoints:
-  None
-functions:
-  es-cleanup-lambda: es-cleanup-lambda-prod-es-cleanup-lambda
+```
+provider "aws" {
+  region = "eu-west-1"
+  version = "~> 1.35.0"
+}
+
+
+module "public_es_cleanup" {
+  source       = "giuliocalzolari/es-cleanup/aws"
+  version      = "1.10.0"
+  prefix       = "public_es_"
+  es_endpoint  = "test-es-XXXXXXX.eu-central-1.es.amazonaws.com"
+  delete_after = 365
+}
+
+
+module "vpc_es_cleanup" {
+  source             = "giuliocalzolari/es-cleanup/aws"
+  version            = "1.10.0"
+  prefix             = "vpc_es_"
+  es_endpoint        = "vpc-gc-demo-vpc-gloo5rzcdhyiykwdlots2hdjla.eu-central-1.es.amazonaws.com"
+  index              = "all"
+  delete_after       = 30
+  subnet_ids         = ["subnet-d8660da2"]
+  security_group_ids = ["sg-02dd3aa6da1b5"]
+}
 ```
 
-### Terraform deployment
 
-This lambda function can be also build using terraform followings this [README](terraform/README.md).
-
+### Issue
+In order order to use new module version you must have `terraform-provider-aws` greated than `1.35.0`
 ## How to Contribute
 
 We encourage contribution to our projects, please see our [CONTRIBUTING](CONTRIBUTING.md) guide for details.
