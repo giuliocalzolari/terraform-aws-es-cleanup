@@ -6,7 +6,7 @@ This AWS Lambda function allows you to delete the old Elasticsearch indexes usin
 ## Diagram
 
 <p align="center">
-  <img src="diagram.png">
+  <img src="https://raw.githubusercontent.com/giuliocalzolari/terraform-aws-es-cleanup/master/diagram.png">
 </p>
 
 
