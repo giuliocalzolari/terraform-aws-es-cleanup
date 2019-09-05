@@ -23,7 +23,6 @@ resource "aws_lambda_function" "es_cleanup" {
     variables = {
       es_endpoint  = "${var.es_endpoint}"
       index        = "${var.index}"
-      skip_index   = "${var.skip_index}"
       delete_after = "${var.delete_after}"
       index_format = "${var.index_format}"
       sns_alert    = "${var.sns_alert}"
@@ -37,8 +36,8 @@ resource "aws_lambda_function" "es_cleanup" {
   # This will be a code block with empty lists if we don't create a securitygroup and the subnet_ids are empty.
   # When these lists are empty it will deploy the lambda without VPC support.
   vpc_config {
-    subnet_ids         = ["${var.subnet_ids}"]
-    security_group_ids = ["${compact(concat(local.sg_ids, var.security_group_ids))}"]
+    subnet_ids         = var.subnet_ids
+    security_group_ids = "${compact(concat(local.sg_ids, var.security_group_ids))}"
   }
 }
 
