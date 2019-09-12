@@ -168,9 +168,8 @@ def lambda_handler(event, context):
         days=int(es.cfg["delete_after"]))
     for index in es.get_indices():
         print("Found index: {}".format(index["index"]))
-        if index["index"] in es.cfg["skip_index"]:
 
-            # ignore .kibana index
+        if skip_index(index["index"], es.cfg["skip_index"]):
             continue
 
         idx_split = index["index"].rsplit("-",
@@ -188,6 +187,14 @@ def lambda_handler(event, context):
         else:
             print("Index {} name {} did not match pattern {}".format(index["index"], idx_name, es.cfg["index"]))
 
+def skip_index(index_name, skip_list):
+    for pattern in skip_list:
+        if pattern.endswith('*'):
+            if index_name.startswith(pattern[:-1]):
+                return true
+        else:
+            if index_name == pattern:
+                return true
 
 if __name__ == '__main__':
     event = {
