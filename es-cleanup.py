@@ -191,10 +191,10 @@ def skip_index(index_name, skip_list):
     for pattern in skip_list:
         if pattern.endswith('*'):
             if index_name.startswith(pattern[:-1]):
-                return true
+                return True
         else:
             if index_name == pattern:
-                return true
+                return True
 
 if __name__ == '__main__':
     event = {
