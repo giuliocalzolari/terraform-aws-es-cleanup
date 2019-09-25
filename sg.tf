@@ -8,7 +8,7 @@ resource "aws_security_group" "lambda" {
   count       = "${length(var.subnet_ids) > 0 ? 1 : 0}"
   name        = "${var.prefix}lambda_cleanup_to_elasticsearch${var.suffix}"
   description = "${var.prefix}lambda_cleanup_to_elasticsearch${var.suffix}"
-  vpc_id      = "${data.aws_subnet.selected.vpc_id}"
+  vpc_id      = "${data.aws_subnet.selected[0].vpc_id}"
 
 
   egress {
