@@ -20,18 +20,17 @@ Module compatible with Terraform `0.12`
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| delete\_after | Numbers of days to preserve | number | `"15"` | no |
-| es\_endpoint | AWS ES fqdn | string | n/a | yes |
-| index | Index/indices to process comma separated, with `all` every index will be processed except `.kibana` | string | `"all"` | no |
-| index\_format | Combined with `index` varible is used to evaluate the index age | string | `"%Y.%m.%d"` | no |
-| prefix | A prefix for the resource names, this helps create multiple instances of this stack for different environments | string | `""` | no |
-| python\_version | Python version to be used | string | `"3.6"` | no |
-| schedule | Cron Schedule expression for running the cleanup function | string | `"cron(0 3 * * ? *)"` | no |
-| security\_group\_ids | Addiational Security Ids To add. | list() | `[]` | no |
-| skip\_index | Index/indices to skip | string | `".kibana"` | no |
-| sns\_alert | SNS ARN to pusblish any alert | string | `""` | no |
-| subnet\_ids | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | list() | `[]` | no |
-| suffix | A suffix for the resource names, this helps create multiple instances of this stack for different environments | string | `""` | no |
+| delete\_after | Numbers of days to preserve | string | `"15"` | no |
+| es\_endpoint |  | string | n/a | yes |
+| index | Index/indices to process comma separated, with all every index will be processed except '.kibana' | string | `".*"` | no |
+| index\_format | Combined with 'index' varible is used to evaluate the index age | string | `"%Y.%m.%d"` | no |
+| prefix |  | string | `""` | no |
+| python\_version |  | string | `"3.6"` | no |
+| schedule |  | string | `"cron(0 3 * * ? *)"` | no |
+| security\_group\_ids | Addiational Security Ids To add. | list(string) | `[]` | no |
+| skip\_index | Index/indices to skip | string | `".kibana*"` | no |
+| subnet\_ids | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | list(string) | `[]` | no |
+| suffix |  | string | `""` | no |
 | tags | Tags to apply | map | `{ "Name": "es-cleanup" }` | no |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -39,9 +38,12 @@ Module compatible with Terraform `0.12`
 ## Example
 
 ```
+terraform {
+  required_version = ">= 0.12"
+}
+
 provider "aws" {
   region = "eu-west-1"
-  version = "~> 1.35.0"
 }
 
 

@@ -1,15 +1,13 @@
 data "aws_subnet" "selected" {
-  count = "${length(var.subnet_ids) > 0 ? 1 : 0}"
-  id    = "${var.subnet_ids[0]}"
+  count = length(var.subnet_ids) > 0 ? 1 : 0
+  id    = var.subnet_ids[0]
 }
 
-
 resource "aws_security_group" "lambda" {
-  count       = "${length(var.subnet_ids) > 0 ? 1 : 0}"
+  count       = length(var.subnet_ids) > 0 ? 1 : 0
   name        = "${var.prefix}lambda_cleanup_to_elasticsearch${var.suffix}"
   description = "${var.prefix}lambda_cleanup_to_elasticsearch${var.suffix}"
-  vpc_id      = "${data.aws_subnet.selected.vpc_id}"
-
+  vpc_id      = data.aws_subnet.selected[0].vpc_id
 
   egress {
     from_port   = 443
@@ -32,10 +30,11 @@ resource "aws_security_group" "lambda" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-
-  tags = "${merge(
+  tags = merge(
     var.tags,
-    map("Scope", "${var.prefix}lambda_function_to_elasticsearch${var.suffix}"),
-  )}"
-
+    {
+      "Scope" = "${var.prefix}lambda_function_to_elasticsearch${var.suffix}"
+    },
+  )
 }
+
