@@ -64,7 +64,7 @@ provider "aws" {
 
 module "public_es_cleanup" {
   source       = "giuliocalzolari/es-cleanup/aws"
-  version      = "1.13.0"
+  version      = "1.14.0"
   prefix       = "public_es_"
   es_endpoint  = "test-es-XXXXXXX.eu-central-1.es.amazonaws.com"
   delete_after = 365
@@ -73,7 +73,7 @@ module "public_es_cleanup" {
 
 module "vpc_es_cleanup" {
   source             = "giuliocalzolari/es-cleanup/aws"
-  version            = "1.13.0"
+  version            = "1.14.0"
   prefix             = "vpc_es_"
   es_endpoint        = "vpc-gc-demo-vpc-gloo5rzcdhyiykwdlots2hdjla.eu-central-1.es.amazonaws.com"
   index              = "all"
