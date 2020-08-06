@@ -16,22 +16,37 @@ Module compatible with Terraform `0.12`
 
 ## Module Input Variables
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Providers
+
+| Name | Version |
+|------|---------|
+| archive | n/a |
+| aws | n/a |
+| http | n/a |
+| local | n/a |
+| null | n/a |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| delete\_after | Numbers of days to preserve | string | `"15"` | no |
-| es\_endpoint |  | string | n/a | yes |
-| index | Index/indices to process comma separated, with all every index will be processed except '.kibana' | string | `".*"` | no |
-| index\_format | Combined with 'index' varible is used to evaluate the index age | string | `"%Y.%m.%d"` | no |
-| prefix |  | string | `""` | no |
-| python\_version |  | string | `"3.6"` | no |
-| schedule |  | string | `"cron(0 3 * * ? *)"` | no |
-| security\_group\_ids | Addiational Security Ids To add. | list(string) | `[]` | no |
-| skip\_index | Index/indices to skip | string | `".kibana*"` | no |
-| subnet\_ids | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | list(string) | `[]` | no |
-| suffix |  | string | `""` | no |
-| tags | Tags to apply | map | `{ "Name": "es-cleanup" }` | no |
+|------|-------------|------|---------|:-----:|
+| delete\_after | Numbers of days to preserve | `number` | `15` | no |
+| es\_endpoint | AWS ES FQDN e.g. search-es-demo-xxxxxxxxxx.eu-west-1.es.amazonaws.com | `string` | n/a | yes |
+| index | Index/indices to process using regex, except the one matching `skip_index` regex | `string` | `".*"` | no |
+| index\_format | Combined with 'index' varible is used to evaluate the index age | `string` | `"%Y.%m.%d"` | no |
+| prefix | A prefix for the resource names, this helps create multiple instances of this stack for different environments | `string` | `""` | no |
+| python\_version | Lambda Python version to be used | `string` | `"3.6"` | no |
+| schedule | Cloudwatch Cron Schedule expression for running the cleanup function | `string` | `"cron(0 3 * * ? *)"` | no |
+| security\_group\_ids | Addiational Security Ids To add. | `list(string)` | `[]` | no |
+| skip\_index | Index/indices to skip | `string` | `".kibana*"` | no |
+| subnet\_ids | Subnet IDs you want to deploy the lambda in. Only fill this in if you want to deploy your Lambda function inside a VPC. | `list(string)` | `[]` | no |
+| suffix | A suffix for the resource names, this helps create multiple instances of this stack for different environments | `string` | `""` | no |
+| tags | Tags to apply | `map` | <pre>{<br>  "Name": "es-cleanup"<br>}</pre> | no |
+| timeout | Maximum lambda execution time | `number` | `300` | no |
+
+## Outputs
+
+No output.
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

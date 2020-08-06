@@ -1,17 +1,17 @@
 data "http" "src" {
-  url = "https://raw.githubusercontent.com/cloudreach/aws-lambda-es-cleanup/master/es-cleanup.py"
+  url = "https://raw.githubusercontent.com/cloudreach/aws-lambda-es-cleanup/master/es_cleanup.py"
 }
 
 resource "local_file" "src_local" {
   content  = "${data.http.src.body}"
-  filename = "${path.module}/es-cleanup.py"
+  filename = "${path.module}/es_cleanup.py"
 }
 
 
 data "archive_file" "es_cleanup_lambda" {
   type        = "zip"
-  source_file = "${path.module}/es-cleanup.py"
-  output_path = "${path.module}/es-cleanup.zip"
+  source_file = "${path.module}/es_cleanup.py"
+  output_path = "${path.module}/es_cleanup.zip"
   depends_on = [
     local_file.src_local,
   ]
@@ -23,7 +23,7 @@ locals {
 
 data "null_data_source" "lambda_file" {
   inputs = {
-    filename = "${path.module}/es-cleanup.zip"
+    filename = "${path.module}/es_cleanup.zip"
   }
 }
 
@@ -31,10 +31,10 @@ resource "aws_lambda_function" "es_cleanup" {
   filename         = data.null_data_source.lambda_file.outputs.filename
   function_name    = "${var.prefix}es-cleanup${var.suffix}"
   description      = "${var.prefix}es-cleanup${var.suffix}"
-  timeout          = 300
+  timeout          = var.timeout
   runtime          = "python${var.python_version}"
   role             = aws_iam_role.role.arn
-  handler          = "es-cleanup.lambda_handler"
+  handler          = "es_cleanup.lambda_handler"
   source_code_hash = data.archive_file.es_cleanup_lambda.output_base64sha256
 
   environment {
@@ -61,4 +61,3 @@ resource "aws_lambda_function" "es_cleanup" {
     security_group_ids = compact(concat(local.sg_ids, var.security_group_ids))
   }
 }
-
