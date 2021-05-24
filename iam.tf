@@ -4,6 +4,10 @@ data "aws_region" "current" {
 data "aws_caller_identity" "current" {
 }
 
+data "aws_partition" "current" {
+}
+
+
 data "aws_iam_policy_document" "policy" {
   statement {
     sid    = "LambdaLogCreation"
@@ -14,8 +18,8 @@ data "aws_iam_policy_document" "policy" {
       "logs:PutLogEvents",
     ]
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}",
-      "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}:*",
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}",
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:*:log-group:/aws/lambda/${var.prefix}es-cleanup${var.suffix}:*",
     ]
   }
 
@@ -37,7 +41,7 @@ data "aws_iam_policy_document" "policy" {
       "es:*",
     ]
     resources = [
-      "arn:aws:es:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:domain/*",
+      "arn:${data.aws_partition.current.partition}:es:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:domain/*",
     ]
   }
 }
@@ -77,5 +81,5 @@ resource "aws_iam_role_policy_attachment" "policy_attachment" {
 resource "aws_iam_role_policy_attachment" "policy_attachment_vpc" {
   count      = length(var.subnet_ids) > 0 ? 1 : 0
   role       = aws_iam_role.role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
